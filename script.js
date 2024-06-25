@@ -233,7 +233,7 @@ console.log(arr2); // that proves it...
 
 // and now, the prototype chain for the arrays is...
 console.log("The arr: ", arr); // the array itself
-console.log("The .__proto__ of arr: ", arr.__proto__); // it will be Array.prototype
+console.log("The .__proto__ of arr: ", arr.__proto__ === Array.prototype); // it will be Array.prototype
 console.log("The .__proto__ of .__proto__ of arr: ", arr.__proto__.__proto__); // it will be Object.prototype
 console.log("The .__proto__ of .__proto__ of .__proto__ of arr: ", arr.__proto__.__proto__.__proto__); // null...
 
@@ -280,7 +280,7 @@ GOOD LUCK =)
 
 
 */
-
+/*
 
 const Car = function (mark, speed) {
 
@@ -303,7 +303,7 @@ Car.prototype.brake = function () {
 
 const bmw = new Car('BMW', 120);
 const mercedes = new Car('Mercedes', 95);
-
+*/
 
 //////////////////////////////////////////
 
@@ -314,10 +314,14 @@ const mercedes = new Car('Mercedes', 95);
 // it's more friendly to developers from other programming languages and
 // can make code structure more clear and concise in bigger projects when compared
 // to constructor functions
+// "Syntactic sugar"
+
+// content about getters and setters are in this and the next block
+
 class PersonCl {
     // Properties
-    constructor(firstName, birthYear) {
-        this.firstName = firstName;
+    constructor(fullName, birthYear) {
+        this.fullName = fullName;
         this.birthYear = birthYear;
     }
 
@@ -326,11 +330,47 @@ class PersonCl {
         console.log(2037 - this.birthYear);
     }
     // is writted that way, but it's still at the prototype
+
+    // getter and setter are useful for data validation
+
+    get age () {
+        return 2037 - this.birthYear;
+    }
+
+    set fullName(name) {
+        console.log(name);
+        if (name.includes(' ')) this._fullName = name;
+        else alert(`${name} is not a full name`)
+        // in that case, the constructor actually has the syntax to
+        // "call" the setter with the fullName as a argument, meaning
+        // that instead of creating a variable fullName it calls the setter
+        // that creates the _fullName variable - the name must be different
+        // so the logic doesn't resume in conflict and errors
+
+        // in that case, it validates if the full name is valid and then
+        // make _fullName withing the class be equal to the fullName parameter
+        // which means that the fullName will not be a property of PersonCl class, 
+        // but _fullName instead
+
+    }
+
+    // since there is no fullName property, the getter returns _fullName when the
+    // some code tries to reach a fullName property from within the created objects
+    get fullName() {
+        return this._fullName;
+    }
 }
 
-const jessica = new PersonCl('Jessica', 1996);
+// * const john = new PersonCl('John', 1894); // it should alert us with an error and
+// don't set neither a _fullName or a fullName property for it
+
+const jessica = new PersonCl('Jessica Davis', 1996);
 console.log('Jessica = ', jessica);
 jessica.calcAge();
+// works the same...
+
+// the getter...
+console.log('Jessica has ', jessica.age, ' years.');
 
 console.log(jessica.__proto__ === PersonCl.prototype); // Should return true
 
@@ -342,16 +382,23 @@ PersonCl.prototype.greet = function () {
 jessica.greet(); // and it will work the same, since the prototype concept is still the same, just
 // abstracted a little bit
 
+// 1. Classes are NOT hoisted - can't be used before declaration
+// 2. Classes are first-class citizens - can be passed and returned by function,
+// as it's a JS function behind the scene
+// 3. Classes are executed in strict mode
+
 /////////////////////////////////////////////////
 
 const account = {
     owner: 'Jonas',
     movements: [200, 530, 120, 300],
 
+    // read data as a property but with calculations before
     get latest () {
         return this.movements.slice(-1).pop();
     },
 
+    // account.latest = 50 // pushes 50 to the movement array
     set latest(mov) {
         this.movements.push(mov);
     }
@@ -363,3 +410,223 @@ console.log(account.latest);
 account.latest = 50;
 
 console.log(account.latest);
+
+
+/*
+const Animal = function (legs, hasScale, hasFeather, isExtinct) {
+    this.legs = legs;
+    this.hasScale = hasScale;
+    this.hasFeather = hasFeather;
+    this.isExtinct = isExtinct;
+}
+
+Animal.prototype.move = function () {
+    if (this.isExtinct) return "It can't, it's dead";
+    else return 'It moved';
+};
+
+const bear = new Animal(4, false, false, false);
+const dodo = new Animal(2, false, true, true);
+*/
+
+
+
+/////////////////////////////////////////////////////
+
+// STATIC METHOD
+
+// created in a constructor of Array, Number and other, but not within the
+// prototype of it's children - meaning it's static, like the Array.from() and
+// the Number.parseFloat() methods
+
+class Worker {
+    constructor (name, profession){
+        this.name = name;
+        this.profession = profession;
+    }
+
+    // Instance method, because it's passed to instances
+    sayProfession () {
+        return this.profession;
+    }
+
+    // to create a static method only available in the Worker object - not inherited
+    static sayHi () {
+        return 'Hello!';
+    }
+}
+
+// It's possible to do the same here:
+Worker.sayBye = function () {
+    return 'Bye';
+}
+
+const paulo = new Worker ('paulo', 'medic');
+// paulo has the instance method, but doesn't have neither of the static
+// methods of Worker - since inheritance works with the prototype, not the
+// constructor function itself 
+
+////////////////////////////////////////////////////////////////
+
+// OBJECT.CREATE
+
+// this object literal will be the prototype for all the Person objects
+const PersonProto = {
+    calcAge() {
+        console.log(2037 - this.birthYear);
+    },
+
+    // manual way to initialize the object once it's created and has the
+    // .__proto__ linked to this object literal - now it will be the prototype
+    // of every object bellow
+    init (firstName, birthYear) {
+        this.firstName = firstName;
+        this.birthYear = birthYear;
+    }
+}
+
+const steven = Object.create(PersonProto);
+console.log(steven);
+steven.name = 'Steven';
+steven.birthYear = 2002;
+steven.calcAge(); // it works, since the prototype inheritance has been
+// implemented in a different way, but still implemented
+
+// to seriously use the Object.create() static method, it's better to create
+// a method that inits the object with it's meant variables, as it's seen
+// bellow the calcAge() method in the PersonProto object literal.
+
+// using it to define a Person sarah
+const sarah = Object.create(PersonProto);
+sarah.init('Sarah', 1975);
+sarah.calcAge(); // and it should work since the birthYear was initialized already
+
+
+////////////////////////////////////////////////////
+
+// Coding Challenge #2
+
+/*
+1. Re-create challenge 1, but this time using an ES6 class;
+2. Add a getter called 'speedUS' which returns the current speed in
+mi/h (divide by 1.6);
+3. Add a setter called 'speedUS' which sets the current speed in mi/h
+(but converts it to km/h before storing the value, by multiplying the
+input by 1.6);
+4. Create a new car and experiment with the accelerate and brake methods, and with
+the getter and setter.
+
+DATA CAR 1: 'Ford' going at 120 km/h
+
+GOOD LUCK =)
+
+
+*/
+
+/*
+class Car {
+
+    // properties
+    constructor (make, speed) {
+        this.make = make;
+        this.speed = speed;
+    }
+
+    // instance methods
+
+    accelerate () {
+        this.speed += 10;
+        return `The current speed is ${this.speed} km/h`;
+    }
+
+    brake () {
+        this.speed -= 5;
+        return `The current speed is ${this.speed} km/h`;
+    }
+
+    // getters and setters for the speed in us
+
+    get speedUS() {
+        return `The current speed is ${this.speed / 1.6} mi/h.`;
+    }
+
+    set speedUS(speed) {
+        this.speed = speed * 1.6;
+        // * return `The current speed is ${this.speed} km/h and ${speed} mi/h.`;
+    }
+
+}
+
+// new instance of Car
+const ford = new Car('Ford', 120);
+
+*/
+
+/////////////////////////////////////////////
+
+const _Person = function (firstName, birthYear) {
+    this.firstName = firstName;
+    this.birthYear = birthYear;
+    // * console.log('this constructor function have been called', this);
+}
+
+_Person.prototype.calcAge = function () {
+    return 2037 - this.birthYear;
+};
+
+const _Student = function(firstName, birthYear, course) {   
+
+    //_Person(firstName, birthYear); // throws an error because the this keyword is setted to undefined when
+    // the function is called that way - not as a method of some sort
+
+    // the .call allow us to pass the this keyword as an argument to the function call, thus making the code
+    // within the _Person constructor function work as intended...
+    _Person.call(this, firstName, birthYear);
+
+    // * this.firstName = firstName; // code being repeated
+    // * this.birthYear = birthYear; // is never a good idea
+    this.course = course;
+}
+
+// Linking prototypes
+_Student.prototype = Object.create(_Person.prototype);
+// * _Student.prototype = _Person.prototype // It's bad code, making both objects
+// the same and not linking them as prototype chain was meant to work
+
+_Student.prototype.introduce = function () {
+    console.log(`My name is ${this.firstName} and I study ${this.course}.`)
+}
+
+const mike = new _Student('Mike', 2020, 'Computer Science');
+console.log(mike);
+mike.introduce();
+console.log(mike.calcAge());
+
+console.log(mike.__proto__); // here it says that Mike is of type Person, which
+// should not be the case
+console.log(mike.__proto__.__proto__);
+
+console.log(_Student.prototype.constructor); // it should point to _Student,
+// but it points to _Person because of the Object.create() - and it can be fixed,
+// since sometimes it's necessary to rely on the constructor
+
+console.log(mike instanceof _Student);
+console.log(mike instanceof _Person);
+console.log(mike instanceof Object);
+
+_Student.prototype.constructor = _Student;
+
+/*
+const testFunction = function (testData) {
+    console.log(this);
+    console.log(testData + 10);
+}
+*/
+
+////////////////////////////////////
+
+// 
+
+
+
+
