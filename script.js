@@ -623,10 +623,67 @@ const testFunction = function (testData) {
 }
 */
 
-////////////////////////////////////
+/////////////////////////////////////////////////////////////
 
-// 
+// CODING CHALLENGE #3
 
+/*
+1. Use a constructor function to implement an Eletric Car (called EV) 
+as a CHILD "class" of Car. Besides a make and current speed, the EV
+also has the current battery in % ('charge' property);
+2. Implement a 'chargeBattery' method which takes an argument 'chargeTo'
+and sets the battery charge to 'chargeTo';
+3. Implement an 'accelerate' method that will increase the car's speed
+by 20, and decrease the charge by 1%. Then log a message like this: 'Tesla going
+at 140 km/h, with a charge of 22%;
+4. Create an eletric car object and experiment with calling 'accelerate', 'brake'
+, and 'chargeBattery' (charge to 90%). Notice what happens when you 'accelerate'!
+HINT: review the definition of polymorphism
 
+DATA CAR 1: 'Tesla' going at 120 km/h, with a charge of 23%
 
+GOOD LUCK
 
+*/
+
+const _Car = function (make, speed) {
+    this.make = make;
+    this.speed = speed;
+}
+
+_Car.prototype.accelerate = function () {
+    this.speed += 10;
+    return this.speed;
+};
+
+_Car.prototype.brake = function () {
+    this.speed -= 5;
+    return this.speed;
+};
+
+const _EV = function (make, speed, charge) {
+    _Car.call(this, make, speed);
+    this.charge = charge + '%';
+};
+
+_EV.prototype = Object.create(_Car.prototype);
+
+_EV.prototype.constructor = _EV;
+
+_EV.prototype.chargeBattery = function (chargeTo) {
+    this.charge = chargeTo + '%';
+}
+
+_EV.prototype.accelerate = function () {
+    this.speed += 10;
+    this.charge = Number.parseInt(this.charge) - 1 + '%';
+    return `${this.make} is goint at ${this.speed} km/h with a charge of ${this.charge}`;
+}
+
+const tesla = new _EV('Tesla', 120, 23);
+
+console.log(tesla instanceof _EV);
+console.log(tesla instanceof _Car);
+console.log(tesla instanceof Object);
+
+//////////////////////////////////////////////////////////////////
