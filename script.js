@@ -686,7 +686,6 @@ console.log(tesla instanceof _EV);
 console.log(tesla instanceof _Car);
 console.log(tesla instanceof Object);
 
-<<<<<<< HEAD
 //////////////////////////////////////////////////////////////////
 
 // Prototype chain between prototypes - or "class" inheritance - in JS with ES6 classes
@@ -1014,6 +1013,3 @@ rivian.chargeBattery(30).accelerate();
 
 // Finished!
 ////////////////////////////////////////////////////////////////////
-=======
-//////////////////////////////////////////////////////////////////
->>>>>>> main
